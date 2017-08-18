@@ -1,0 +1,8 @@
+[docker_hosts:vars]
+ansible_ssh_user=pi
+
+[docker_hosts]
+192.168.0.51
+192.168.0.52
+192.168.0.53
+192.168.0.54
