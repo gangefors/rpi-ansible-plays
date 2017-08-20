@@ -1,5 +1,6 @@
 ---
 - hosts: docker_hosts
+  become: yes
 
   vars:
     test_image: arm32v7/hello-world
@@ -7,7 +8,6 @@
   tasks:
 
     - name: "Install prerequisite packages"
-      become: yes
       apt:
         name: "{{ item }}"
         update_cache: yes
@@ -25,7 +25,6 @@
         - software-properties-common
 
     - name: "Install pip"
-      become: yes
       easy_install:
         executable: "{{ item }}"
         name: pip
@@ -35,7 +34,6 @@
         - easy_install-3.4
 
     - name: "Install docker-py"
-      become: yes
       pip:
         executable: "{{ item }}"
         name:
@@ -47,31 +45,27 @@
         - pip3
 
     - name: "Install Docker"
-      become: yes
       shell: curl -sSL https://get.docker.com/ | sh
 
     - name: "Ensure systemd drop-in directory exist"
-      become: yes
       file:
         state: directory
         path: /etc/systemd/system/docker.service.d
 
     - name: "Create systemd override for Docker"
-      become: yes
       template:
         src: override.conf.j2
         dest: /etc/systemd/system/docker.service.d/override.conf
       register: systemd
 
     - name: "Configure Docker daemon"
-      become: yes
+      tags: test
       template:
         src: daemon.json.j2
         dest: /etc/docker/daemon.json
       register: daemon_config
 
     - name: "Restart Docker daemon"
-      become: yes
       systemd:
         name: docker
         daemon_reload: yes
@@ -79,7 +73,6 @@
       when: daemon_config.changed or systemd.changed
 
     - name: "Ensure that the Docker installation works"
-      become: yes
       docker_container:
         image: "{{ test_image }}"
         name: hello
@@ -87,7 +80,6 @@
         state: started
 
     - name: "Remove hello_world image"
-      become: yes
       docker_image:
         name: "{{ test_image }}"
         state: absent
