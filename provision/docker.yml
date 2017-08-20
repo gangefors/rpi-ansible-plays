@@ -1,6 +1,6 @@
 ---
 - hosts: docker_hosts
-  become: yes
+  become: true
 
   vars:
     test_image: arm32v7/hello-world
@@ -10,7 +10,7 @@
     - name: "Install prerequisite packages"
       apt:
         name: "{{ item }}"
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 3600
         state: present
       with_items:
@@ -68,7 +68,7 @@
     - name: "Restart Docker daemon"
       systemd:
         name: docker
-        daemon_reload: yes
+        daemon_reload: true
         state: restarted
       when: daemon_config.changed or systemd.changed
 
@@ -76,11 +76,11 @@
       docker_container:
         image: "{{ test_image }}"
         name: hello
-        cleanup: yes
+        cleanup: true
         state: started
 
     - name: "Remove hello_world image"
       docker_image:
         name: "{{ test_image }}"
         state: absent
-        force: yes
+        force: true
