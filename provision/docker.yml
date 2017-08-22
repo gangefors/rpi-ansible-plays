@@ -59,7 +59,6 @@
       register: systemd
 
     - name: "Configure Docker daemon"
-      tags: test
       template:
         src: daemon.json.j2
         dest: /etc/docker/daemon.json
@@ -68,6 +67,7 @@
     - name: "Restart Docker daemon"
       systemd:
         name: docker
+        enabled: true
         daemon_reload: true
         state: restarted
       when: daemon_config.changed or systemd.changed
